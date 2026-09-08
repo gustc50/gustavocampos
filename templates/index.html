@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download de Notas Fiscais - Certificado Digital</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <header class="header" id="appHeader" style="display:none;">
+        <div class="header-content">
+            <h1>
+                <span class="icon">&#128196;</span>
+                Notas Fiscais
+            </h1>
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <div class="cert-badge">
+                    <span class="dot"></span>
+                    <span id="headerCertName">-</span>
+                </div>
+                <button class="btn-logout" id="btnLogout">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="icon-large">&#128274;</div>
+            <h2>Certificado Digital</h2>
+            <p>Faca o upload do seu certificado digital A1 (.pfx ou .p12) para acessar as notas fiscais.</p>
+
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="certFile" accept=".pfx,.p12">
+                <div class="upload-icon">&#128193;</div>
+                <div>Arraste o certificado aqui ou <strong>clique para selecionar</strong></div>
+                <div class="filename" id="fileName" style="display:none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="certPassword">Senha do Certificado</label>
+                <input type="password" id="certPassword" placeholder="Digite a senha do certificado">
+            </div>
+
+            <button class="btn btn-primary btn-block" id="btnUploadCert">Acessar</button>
+        </div>
+    </div>
+
+    <div class="dashboard" id="dashboard">
+        <div class="container">
+
+            <div class="cert-info-card">
+                <div class="cert-icon">&#128272;</div>
+                <div class="cert-details">
+                    <h3 id="certTitular">-</h3>
+                    <div class="meta">
+                        <span><strong>CNPJ/CPF:</strong> <span id="certCnpj">-</span></span>
+                        <span><strong>Validade:</strong> <span id="certValidade">-</span> <span id="certValidadeStatus"></span></span>
+                        <span><strong>Emissor:</strong> <span id="certEmissor">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-tabs">
+                <div class="category-tab" data-category="nfe">
+                    <div class="tab-icon">&#128196;</div>
+                    <h3>NF-e</h3>
+                    <p>Nota Fiscal Eletronica de Produto</p>
+                    <p style="font-size:0.75rem;color:var(--gray-400);margin-top:0.25rem;">Entrada &amp; Saida</p>
+                </div>
+                <div class="category-tab" data-category="nfse">
+                    <div class="tab-icon">&#128221;</div>
+                    <h3>NFS-e</h3>
+                    <p>Nota Fiscal de Servico Eletronica</p>
+                    <p style="font-size:0.75rem;color:var(--gray-400);margin-top:0.25rem;">Prestados &amp; Tomados</p>
+                </div>
+            </div>
+
+            <div class="section-panel" id="section-nfe">
+                <div class="section-header">
+                    <h2>&#128196; NF-e - Notas Fiscais Eletronicas</h2>
+                    <div class="action-bar">
+                        <span id="nsuInfo" style="font-size:0.8rem;color:var(--gray-400);"></span>
+                        <button class="btn btn-sm btn-outline" id="btnBuscarMaisNfe" style="display:none;">Buscar mais</button>
+                    </div>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="form-group">
+                        <label for="nfeUf">Estado (UF)</label>
+                        <select id="nfeUf">
+                            <option value="AC">AC - Acre</option>
+                            <option value="AL">AL - Alagoas</option>
+                            <option value="AP">AP - Amapa</option>
+                            <option value="AM">AM - Amazonas</option>
+                            <option value="BA">BA - Bahia</option>
+                            <option value="CE">CE - Ceara</option>
+                            <option value="DF">DF - Distrito Federal</option>
+                            <option value="ES">ES - Espirito Santo</option>
+                            <option value="GO">GO - Goias</option>
+                            <option value="MA">MA - Maranhao</option>
+                            <option value="MT">MT - Mato Grosso</option>
+                            <option value="MS">MS - Mato Grosso do Sul</option>
+                            <option value="MG">MG - Minas Gerais</option>
+                            <option value="PA">PA - Para</option>
+                            <option value="PB">PB - Paraiba</option>
+                            <option value="PR">PR - Parana</option>
+                            <option value="PE">PE - Pernambuco</option>
+                            <option value="PI">PI - Piaui</option>
+                            <option value="RJ">RJ - Rio de Janeiro</option>
+                            <option value="RN">RN - Rio Grande do Norte</option>
+                            <option value="RS">RS - Rio Grande do Sul</option>
+                            <option value="RO">RO - Rondonia</option>
+                            <option value="RR">RR - Roraima</option>
+                            <option value="SC">SC - Santa Catarina</option>
+                            <option value="SP" selected>SP - Sao Paulo</option>
+                            <option value="SE">SE - Sergipe</option>
+                            <option value="TO">TO - Tocantins</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:0;">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary btn-sm" id="btnConsultarNfe">Consultar NFe</button>
+                    </div>
+                </div>
+
+                <div class="sub-tabs">
+                    <div class="sub-tab active" data-tab="nfe-entrada">
+                        &#128229; Entrada
+                        <span class="badge" id="badgeEntrada">0</span>
+                    </div>
+                    <div class="sub-tab" data-tab="nfe-saida">
+                        &#128228; Saida
+                        <span class="badge" id="badgeSaida">0</span>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading-nfe">
+                    <div class="spinner"></div>
+                    <p>Consultando SEFAZ...</p>
+                </div>
+
+                <div class="sub-content active" data-content="nfe-entrada">
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="label">Total Notas Entrada</div>
+                            <div class="value" id="nfeSummaryEntrada">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">Valor Total Entrada</div>
+                            <div class="value" id="nfeSummaryValorEntrada">R$ 0,00</div>
+                        </div>
+                    </div>
+                    <div style="padding:0.5rem 2rem 1rem;text-align:right;">
+                        <button class="btn btn-success btn-sm" id="btnDownloadEntrada" style="display:none;">&#11015; Download ZIP Entrada</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table" id="tableEntrada">
+                            <thead><tr><th>Numero</th><th>Serie</th><th>Chave</th><th>Emitente</th><th>Destinatario</th><th>Emissao</th><th>Natureza</th><th>Valor</th><th>Acoes</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyEntrada">
+                        <div class="empty-icon">&#128229;</div>
+                        <h3>Nenhuma nota de entrada</h3>
+                        <p>Clique em "Consultar NFe" para buscar as notas fiscais de entrada no SEFAZ.</p>
+                    </div>
+                </div>
+
+                <div class="sub-content" data-content="nfe-saida">
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="label">Total Notas Saida</div>
+                            <div class="value" id="nfeSummarySaida">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">Valor Total Saida</div>
+                            <div class="value" id="nfeSummaryValorSaida">R$ 0,00</div>
+                        </div>
+                    </div>
+                    <div style="padding:0.5rem 2rem 1rem;text-align:right;">
+                        <button class="btn btn-success btn-sm" id="btnDownloadSaida" style="display:none;">&#11015; Download ZIP Saida</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table" id="tableSaida">
+                            <thead><tr><th>Numero</th><th>Serie</th><th>Chave</th><th>Emitente</th><th>Destinatario</th><th>Emissao</th><th>Natureza</th><th>Valor</th><th>Acoes</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptySaida">
+                        <div class="empty-icon">&#128228;</div>
+                        <h3>Nenhuma nota de saida</h3>
+                        <p>Clique em "Consultar NFe" para buscar as notas fiscais de saida no SEFAZ.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-panel" id="section-nfse">
+                <div class="section-header">
+                    <h2>&#128221; NFS-e - Notas Fiscais de Servico</h2>
+                </div>
+
+                <div class="sub-tabs">
+                    <div class="sub-tab active" data-tab="nfse-prestados">
+                        &#128200; Servicos Prestados
+                        <span class="badge" id="badgePrestados">0</span>
+                    </div>
+                    <div class="sub-tab" data-tab="nfse-tomados">
+                        &#128201; Servicos Tomados
+                        <span class="badge" id="badgeTomados">0</span>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading-nfse">
+                    <div class="spinner"></div>
+                    <p>Consultando webservice da prefeitura...</p>
+                </div>
+
+                <div class="sub-content active" data-content="nfse-prestados">
+                    <div class="filter-bar">
+                        <div class="form-group">
+                            <label for="nfsePrestadosUrlWs">URL Webservice Prefeitura</label>
+                            <input type="url" id="nfsePrestadosUrlWs" placeholder="https://nfse.prefeitura.gov.br/ws">
+                        </div>
+                        <div class="form-group">
+                            <label for="nfsePrestadosCodMunicipio">Cod. Municipio (IBGE)</label>
+                            <input type="text" id="nfsePrestadosCodMunicipio" placeholder="3550308">
+                        </div>
+                        <div class="form-group">
+                            <label for="nfsePrestadosDataInicio">Data Inicio</label>
+                            <input type="date" id="nfsePrestadosDataInicio">
+                        </div>
+                        <div class="form-group">
+                            <label for="nfsePrestadosDataFim">Data Fim</label>
+                            <input type="date" id="nfsePrestadosDataFim">
+                        </div>
+                        <div class="form-group" style="flex:0;">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary btn-sm" id="btnConsultarNfsePrestados">Consultar</button>
+                        </div>
+                    </div>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="label">Total Prestados</div>
+                            <div class="value" id="nfseSummaryPrestados">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">Valor Total</div>
+                            <div class="value" id="nfseSummaryValorPrestados">R$ 0,00</div>
+                        </div>
+                    </div>
+                    <div style="padding:0.5rem 2rem 1rem;text-align:right;">
+                        <button class="btn btn-success btn-sm" id="btnDownloadPrestados" style="display:none;">&#11015; Download ZIP Prestados</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table" id="tablePrestados">
+                            <thead><tr><th>Numero</th><th>Tomador</th><th>Descricao</th><th>Emissao</th><th>Cod. Servico</th><th>Valor</th><th>ISS</th><th>Aliquota</th><th>Acoes</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyPrestados">
+                        <div class="empty-icon">&#128200;</div>
+                        <h3>Nenhuma NFSe de servicos prestados</h3>
+                        <p>Informe a URL do webservice da prefeitura e o periodo para consultar as notas de servicos prestados.</p>
+                    </div>
+                </div>
+
+                <div class="sub-content" data-content="nfse-tomados">
+                    <div class="filter-bar">
+                        <div class="form-group">
+                            <label for="nfseTomadosUrlWs">URL Webservice Prefeitura</label>
+                            <input type="url" id="nfseTomadosUrlWs" placeholder="https://nfse.prefeitura.gov.br/ws">
+                        </div>
+                        <div class="form-group">
+                            <label for="nfseTomadosCodMunicipio">Cod. Municipio (IBGE)</label>
+                            <input type="text" id="nfseTomadosCodMunicipio" placeholder="3550308">
+                        </div>
+                        <div class="form-group">
+                            <label for="nfseTomadosDataInicio">Data Inicio</label>
+                            <input type="date" id="nfseTomadosDataInicio">
+                        </div>
+                        <div class="form-group">
+                            <label for="nfseTomadosDataFim">Data Fim</label>
+                            <input type="date" id="nfseTomadosDataFim">
+                        </div>
+                        <div class="form-group" style="flex:0;">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary btn-sm" id="btnConsultarNfseTomados">Consultar</button>
+                        </div>
+                    </div>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="label">Total Tomados</div>
+                            <div class="value" id="nfseSummaryTomados">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">Valor Total</div>
+                            <div class="value" id="nfseSummaryValorTomados">R$ 0,00</div>
+                        </div>
+                    </div>
+                    <div style="padding:0.5rem 2rem 1rem;text-align:right;">
+                        <button class="btn btn-success btn-sm" id="btnDownloadTomados" style="display:none;">&#11015; Download ZIP Tomados</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table" id="tableTomados">
+                            <thead><tr><th>Numero</th><th>Prestador</th><th>Descricao</th><th>Emissao</th><th>Cod. Servico</th><th>Valor</th><th>ISS</th><th>Aliquota</th><th>Acoes</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="emptyTomados">
+                        <div class="empty-icon">&#128201;</div>
+                        <h3>Nenhuma NFSe de servicos tomados</h3>
+                        <p>Informe a URL do webservice da prefeitura e o periodo para consultar as notas de servicos tomados.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        const observer = new MutationObserver(() => {
+            const dash = document.getElementById('dashboard');
+            document.getElementById('appHeader').style.display =
+                dash.classList.contains('active') ? 'block' : 'none';
+        });
+        observer.observe(document.getElementById('dashboard'), { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>
