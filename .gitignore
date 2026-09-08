@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+uploads/
+downloads/
+*.pem
+*.pfx
+*.p12
+.env
+venv/

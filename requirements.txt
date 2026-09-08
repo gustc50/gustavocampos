@@ -1,0 +1,7 @@
+flask>=3.0
+pyOpenSSL>=24.0
+lxml>=5.0
+requests>=2.31
+zeep>=4.2
+signxml>=4.0
+cryptography>=42.0
